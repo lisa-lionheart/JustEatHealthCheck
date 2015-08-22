@@ -17,6 +17,24 @@ function normalizeBuisnessName(name) {
     return name;
 }
 
+function normalizeAddress(address) {
+  
+    address = address.trim().replace('\n','').split(', ').map(function(line){ return line.trim(); });
+
+    var street = address[0].replace('\'','');
+    var postCode = address[address.length-1].replace(/ \(.+\)/, '');
+
+    if(address.length == 3) {
+        return [street,address[1], postCode];
+    } 
+
+    if(address.length == 4) {
+        return [street,address[2], postCode];
+    }
+
+    console.log('failed to normalize address', address);
+}
+
 function checkName(establismentData, jeName) {
 
     govName = normalizeBuisnessName(establismentData.BusinessName);
@@ -48,7 +66,7 @@ function callApi(method,args, done) {
         url:'http://api.ratings.food.gov.uk/'+method+'?'+qs.join('&'),
         accepts: 'application/json',
         cache: true,
-        headers: { 'x-api-version':2 },
+        headers: { 'x-api-version':2, accept: 'application/json' },
         success: function(data) { done(null,data);   },
         error: done
     });
@@ -85,21 +103,6 @@ function parseResult(name,address, data, done) {
     done(null, null);
 }
 
-function normalizeAddress(address) {
-
-    var street = address[0].replace('\'','');
-    var postCode = address[address.length-1].replace(/ \(.+\)/, '');
-
-    if(address.length == 3) {
-        return [street,address[1], postCode];
-    } 
-
-    if(address.length == 4) {
-        return [street,address[2], postCode];
-    }
-
-    console.log('failed to normalize address', address);
-}
 
 
 
@@ -155,8 +158,8 @@ function lookupNoCache(name, address, done) {
 
 function processSearchResult(i, el) {
 
-    var address = normalizeAddress($(el).find('p.address')[0].innerText.split(', '));
-    var name = $(el).find('h2.name')[0].innerText;
+    var address = normalizeAddress($(el).find('p.address').text());
+    var name = $(el).find('h2.name').text().trim();
     var id = $(el).find('h2.name a').attr('data-restaurant-id');
 
     var ratingEl = $('<a class="hygineRating loading"></a>');
