@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  enter something useful
 // @author       Lisa Croxford
-// @match        http://www.just-eat.co.uk/*
+// @match        *//www.just-eat.co.uk/*
 // @grant        none
 // ==/UserScript==
 
