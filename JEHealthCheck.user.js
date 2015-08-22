@@ -4,8 +4,8 @@
 // @version      0.1
 // @description  enter something useful
 // @author       Lisa Croxford
-// @match        *//www.just-eat.co.uk/*
-// @grant        none
+// @match        https://www.just-eat.co.uk/*, http://www.just-eat.co.uk/*
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 
@@ -61,14 +61,17 @@ function callApi(method,args, done) {
     for(var k in args) {  
         qs.push( k + '='+args[k]);
     }
-
-    $.ajax({
-        url:'http://api.ratings.food.gov.uk/'+method+'?'+qs.join('&'),
-        accepts: 'application/json',
-        cache: true,
-        headers: { 'x-api-version':2, accept: 'application/json' },
-        success: function(data) { done(null,data);   },
-        error: done
+    
+    GM_xmlhttpRequest({
+      method: "GET",
+      url: 'http://api.ratings.food.gov.uk/'+method+'?'+qs.join('&'),
+      headers: {
+        'x-api-version':2,
+        accept: 'application/json'
+      },
+      onload: function(response) {
+        done(null,JSON.parse(response.responseText));
+      }
     });
 }
 
