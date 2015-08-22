@@ -4,7 +4,8 @@
 // @version      1.1
 // @description  Check the ratings.food.gov for restraunts on just eat
 // @author       Lisa Croxford
-// @match        *//www.just-eat.co.uk/*
+// @match        http://www.just-eat.co.uk/*
+// @match        https://www.just-eat.co.uk/*
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
