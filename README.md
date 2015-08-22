@@ -11,6 +11,5 @@ User Script/Grease Moneky to fetch the food hygiene rating for UK takeaways
 
 # Firefox how to
 
-1. Install grease monkey
-2. ???
-3. Profit
+1. Install grease monkey: [here](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/)
+2. [Click this link to install](https://github.com/lisa-lionheart/JustEatHealthCheck/raw/master/JEHealthCheck.user.js)
