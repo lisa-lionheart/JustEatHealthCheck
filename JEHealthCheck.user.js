@@ -7,6 +7,7 @@
 // @require       http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js
 // @match        http://www.just-eat.co.uk/*
 // @match        https://www.just-eat.co.uk/*
+// @downloadURL  https://github.com/lisa-lionheart/JustEatHealthCheck/raw/master/JEHealthCheck.user.js
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
