@@ -2,7 +2,7 @@
 
 User Script/Grease Monkey script to fetch the food hygiene rating for UK takeaways. It displays the food hygine graphic on search results and restaurant menus. 
 
-Some restraunts don't match up correctly due to the data on ratings.food.gov.uk being different to Just Eats. This is usually the case when the address is different or they have different trading names. When this happens it will give you a link to search on the same post code directly on the ratings site.
+Some restaurants don't match up correctly due to the data on ratings.food.gov.uk being different to Just Eats. This is usually the case when the address is different or they have different trading names. When this happens it will give you a link to search on the same post code directly on the ratings site.
 
 Some times the ratings website is slow to respond so be patient, the script will cache results for each restraunt in your browser for each subsequent page refresh.
 
