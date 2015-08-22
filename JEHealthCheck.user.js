@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Just Eat Hygine Check
-// @namespace    me.croxford.justeat
+// @namespace    https://github.com/lisa-lionheart/JustEatHealthCheck
 // @version      0.1
 // @description  enter something useful
 // @author       Lisa Croxford
