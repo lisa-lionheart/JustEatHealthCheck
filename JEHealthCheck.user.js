@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Just Eat Hygine Check
 // @namespace    https://github.com/lisa-lionheart/JustEatHealthCheck
-// @version      1.0
+// @version      1.1
 // @description  Check the ratings.food.gov for restraunts on just eat
 // @author       Lisa Croxford
 // @match        *//www.just-eat.co.uk/*
