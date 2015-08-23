@@ -11,9 +11,9 @@ This is a rewrite of a chrome extension that is no longer maintend and no longer
 # Chome how to
 
 1. Install tamper monkey extenison: [here](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en)
-2. [Click this link to install](https://github.com/lisa-lionheart/JustEatHealthCheck/raw/master/JEHealthCheck.user.js)
+2. [Click this link to install JE Health Check](https://github.com/lisa-lionheart/JustEatHealthCheck/raw/master/JEHealthCheck.user.js)
 
 # Firefox how to
 
-1. Install grease monkey addon: [here](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/)
-2. [Click this link to install](https://github.com/lisa-lionheart/JustEatHealthCheck/raw/master/JEHealthCheck.user.js)
+1. Install grease monkey addon: [here](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) (browser restart required)
+2. [Click this link to install JE Health Check](https://github.com/lisa-lionheart/JustEatHealthCheck/raw/master/JEHealthCheck.user.js)
