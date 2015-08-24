@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Just Eat Hygine Check
+// @name         Just Eat hygiene Check
 // @namespace    https://github.com/lisa-lionheart/JustEatHealthCheck
-// @version      1.4
+// @version      1.5
 // @description  Check the ratings.food.gov for restaurants on just eat and hungry house
 // @author       Lisa Croxford
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js
@@ -187,7 +187,7 @@ var SitesCommon = {
 
         return function(err,result) {
 
-            ratingEl.removeClass('hygineRatingLoading');
+            ratingEl.removeClass('hygieneRatingLoading');
 
             if(err) {
                 ratingEl.text('Ooops. something went wrong');   
@@ -196,9 +196,11 @@ var SitesCommon = {
 
             if(result === null) {
                 ratingEl.addClass('unrated');
+                ratingEl.attr('data-value', -1);
                 ratingEl.text('Manual search');   
                 ratingEl.attr('href', 'http://ratings.food.gov.uk/');
             } else {
+                ratingEl.attr('data-value', result.rating);
                 ratingEl.css('backgroundImage', 'url(http://ratings.food.gov.uk/images/scores/'+imageSize+'/'+result.image+')');
                 ratingEl.attr('href',result.link);
             }
@@ -226,7 +228,7 @@ var JustEat = {
 
         console.log(name,address);
 
-        var ratingEl = $('<a class="hygineRating hygineRatingLoading"></a>');
+        var ratingEl = $('<a class="hygieneRating hygieneRatingLoading"></a>');
         $(el).find('p.viewMenu, p.preOrderButton').append(ratingEl);
 
         lookup(id, name,address, SitesCommon.updateBadgeCallback('small',ratingEl, done));   
@@ -238,7 +240,7 @@ var JustEat = {
         var name = $('.restaurant-name').text().trim();
         var id = $('#RestaurantId').val();
 
-        var ratingEl = $('<a class="hygineRatingBig hygineRatingLoading"></a>');
+        var ratingEl = $('<a class="hygieneRatingBig hygieneRatingLoading"></a>');
         $('#divBasketUpdate').prepend(ratingEl);
 
         lookup(id, name,address, SitesCommon.updateBadgeCallback('large',ratingEl));   
@@ -246,15 +248,15 @@ var JustEat = {
 
     sort: function(){
 
-        if(window.location.href.indexOf('?so=hygine') === -1)
+        if(window.location.href.indexOf('?so=hygiene') === -1)
             return;
 
         elementList = [];
         $(".restaurant").each(function(i, e){
-            var regex = /fhrs_(\d)_en-gb.JPG/;
-            var result = regex.exec($(e).find(".hygineRating").css("backgroundImage"));
-            result = (result === null) ? 0 : result[1];
-            elementList.push({rating:result, element:e, parent:$(e).parent()});
+            var hygineScore = $(e).find(".hygieneRating").attr('data-value');
+            var userScore = $(e).find('meta[itemprop=ratingValue]').attr('content');
+            var combinedScore = hygineScore * 1000 + userScore;
+            elementList.push({rating:combinedScore, element:e, parent:$(e).parent()});
             $(e).remove();
         });
         elementList.sort(function(a,b){
@@ -269,21 +271,21 @@ var JustEat = {
 
     addSortOption: function(i, el) {
 
-        if(window.location.href.indexOf('?so=hygine') !== -1) {
+        if(window.location.href.indexOf('?so=hygiene') !== -1) {
 
             $('#sort .options ul li.selected').removeClass('selected');
-            $('#sort .options ul').append('<li class="selected"><span class="item">Hygine Rating</a></li>');           
+            $('#sort .options ul').append('<li class="selected"><span class="item">Hygiene Rating</a></li>');           
         }else{
 
-            $('#sort .options ul').append('<li><a class="item" href="'+window.location.pathname+'?so=hygine">Hygine Rating</a></li>')
+            $('#sort .options ul').append('<li><a class="item" href="'+window.location.pathname+'?so=hygiene">hygiene Rating</a></li>')
         }
     },
 
     initialize: function() {
         var css = '';
-        css += '.hygineRatingLoading { background-image: url('+ajaxLoader+'); backgound-repeat: no-repeat !important }'
-        css += '.hygineRating { position: absolute; width: 80px !important; background-color: white !important; min-height: 38px; right: 9px; top: 52px; background-position: center; }';
-        css += '.hygineRatingBig { display: block; width: 100% !important; min-height: 150px; background-position: center; background-repeat: no-repeat }';
+        css += '.hygieneRatingLoading { background-image: url('+ajaxLoader+'); backgound-repeat: no-repeat !important }'
+        css += '.hygieneRating { position: absolute; width: 80px !important; background-color: white !important; min-height: 38px; right: 9px; top: 52px; background-position: center; }';
+        css += '.hygieneRatingBig { display: block; width: 100% !important; min-height: 150px; background-position: center; background-repeat: no-repeat }';
 
         $('head').append('<style>' + css + '</style>');
 
@@ -299,7 +301,7 @@ var HungryHouse = {
 
     processMenuPage: function() {
 
-        var ratingEl = $('<a class="hygineRatingBig hygineRatingLoading"></a>');
+        var ratingEl = $('<a class="hygieneRatingBig hygieneRatingLoading"></a>');
         $('#shopping-cart-form').prepend(ratingEl);
 
         var name = $('h1 span').attr('content');
@@ -333,36 +335,87 @@ var HungryHouse = {
 
     },
 
-    addRatingToSearchResult: function(el) {
+    addRatingToSearchResult: function(el, done) {
 
         var id = el.find('.restPageLink').attr('href').substr(1);
 
-        var ratingEl = $('<a class="hygineRating hygineRatingLoading"></a>');
+        var ratingEl = $('<a class="hygieneRating hygieneRatingLoading"></a>');
         el.find('.restsRestInfo').append(ratingEl);
 
         HungryHouse.lookupFromId(id, function(err, name, address) {          
-            lookup(id, name,address, SitesCommon.updateBadgeCallback('small',ratingEl));   
+            lookup(id, name,address, SitesCommon.updateBadgeCallback('small',ratingEl,done));   
         });
     },
 
     //Hungry house loads stuff with ajax so we have to continuously check
     pollForNewSearchItems: function() {
+        
+        var newResults = [];
 
         $('#searchContainer .restaurantBlock').each(function(i,el) {
-            if($(el).find('.hygineRating').length === 0)            
-                HungryHouse.addRatingToSearchResult($(el));          
+            if($(el).find('.hygieneRating').length === 0)            
+                newResults.push($(el));          
         });
+        
+        if(newResults.length===0)
+            return;
+        
+        console.log('Found ', newResults.length, 'restraunts withour rating');
+        async.eachLimit(newResults, 5, HungryHouse.addRatingToSearchResult, window.location.hash === '#hygiene' ? HungryHouse.sortResults : null);
+    },
+    
+    sortResults:  function(){
+
+        
+        $('.restsResNotification').remove();
+        elementList = [];
+        $(".restaurantBlock").each(function(i, e){
+            var hygineScore = parseInt($(e).find(".hygieneRating").attr('data-value'),0);
+            var userScore = parseInt(($(e).find('.restsRating div').css('width') || '0px').replace(/[px\%]+/,''),10);
+            var combinedScore = hygineScore * 1000 + userScore;
+            console.log('Score:', $(e).find('h2').text(), hygineScore, userScore, combinedScore);
+            elementList.push({rating:combinedScore, element:e, parent:$(e).parent()});
+            $(e).remove();
+        });
+        elementList.sort(function(a,b){
+            return b.rating - a.rating;
+        });
+        for (i = 0; i < elementList.length; i++){
+            e = elementList[i];
+            e.parent.append(e.element);
+        }
+    },
+
+    
+    addSortOption: function() {
+        var a = $('<a href="'+window.location.href+'#hygiene">Hygiene Rating</a>');
+        $('#sort-form').append('   |   ');
+        $('#sort-form').append(a);
+        
+        if(window.location.hash==='#hygeine') {
+            $('#sort-form a').removeClass('active');
+            a.addClass('active');
+        }
+        
+        a.click(function(){
+            $('#sort-form a').removeClass('active');
+            a.addClass('active');
+            HungryHouse.sortResults();
+        });
+        
+        
     },
 
     initialize: function() {
         var css = '';
-        css += '.hygineRatingLoading { background-image: url('+ajaxLoader+'); }'
-        css += '.restPageLink { top: -5px !important }';
-        css += '.hygineRating { display: block; position: relative; float: right; width: 120px !important; min-height: 66px !important; background-position: center; background-repeat: no-repeat; right: 0px; top: -10px;}';
-        css += '.hygineRatingBig { display: block; width: 100% !important; min-height: 150px; background-position: center; background-repeat: no-repeat }';
+        css += '.hygieneRatingLoading { background-image: url('+ajaxLoader+'); }'
+        css += '.restsRestStatus { top: -5px !important }';
+        css += '.hygieneRating { display: block; position: relative; float: right; width: 120px !important; min-height: 66px !important; background-position: center; background-repeat: no-repeat; right: 0px; top: -10px;}';
+        css += '.hygieneRatingBig { display: block; width: 100% !important; min-height: 150px; background-position: center; background-repeat: no-repeat }';
 
         $('head').append('<style>' + css + '</style>');
 
+        $(this.addSortOption);
         $('#website-restaurant-container').each(this.processMenuPage);
         setInterval(this.pollForNewSearchItems,500);
     }
