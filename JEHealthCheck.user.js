@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Just Eat Hygine Check
 // @namespace    https://github.com/lisa-lionheart/JustEatHealthCheck
-// @version      1.3
-// @description  Check the ratings.food.gov for restaurants on just eat and hungery house
+// @version      1.4
+// @description  Check the ratings.food.gov for restaurants on just eat and hungry house
 // @author       Lisa Croxford
-// @require       http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/async/1.4.2/async.min.js
 // @match        http://www.just-eat.co.uk/*
 // @match        https://www.just-eat.co.uk/*
 // @match        http://hungryouse.co.uk/*
@@ -182,7 +183,7 @@ function lookupNoCache(name, address, done) {
 
 var SitesCommon = {
 
-    updateBadgeCallback: function(imageSize, ratingEl) {
+    updateBadgeCallback: function(imageSize, ratingEl, done) {
 
         return function(err,result) {
 
@@ -190,7 +191,7 @@ var SitesCommon = {
 
             if(err) {
                 ratingEl.text('Ooops. something went wrong');   
-                return;
+                return done(err);
             }
 
             if(result === null) {
@@ -200,8 +201,9 @@ var SitesCommon = {
             } else {
                 ratingEl.css('backgroundImage', 'url(http://ratings.food.gov.uk/images/scores/'+imageSize+'/'+result.image+')');
                 ratingEl.attr('href',result.link);
-
             }
+
+            done();
         };
 
     }
@@ -214,7 +216,7 @@ var ajaxLoader = 'data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJi
 
 
 var JustEat = {
-    processSearchResult: function(i, el) {
+    processSearchResult: function(el, done) {
 
         console.log('processSearchResult');
 
@@ -227,7 +229,7 @@ var JustEat = {
         var ratingEl = $('<a class="hygineRating hygineRatingLoading"></a>');
         $(el).find('p.viewMenu, p.preOrderButton').append(ratingEl);
 
-        lookup(id, name,address, SitesCommon.updateBadgeCallback('small',ratingEl));   
+        lookup(id, name,address, SitesCommon.updateBadgeCallback('small',ratingEl, done));   
     },
 
     processMenuPage: function(i, el) {
@@ -242,6 +244,41 @@ var JustEat = {
         lookup(id, name,address, SitesCommon.updateBadgeCallback('large',ratingEl));   
     },
 
+    sort: function(){
+
+        if(window.location.href.indexOf('?so=hygine') === -1)
+            return;
+
+        elementList = [];
+        $(".restaurant").each(function(i, e){
+            var regex = /fhrs_(\d)_en-gb.JPG/;
+            var result = regex.exec($(e).find(".hygineRating").css("backgroundImage"));
+            result = (result === null) ? 0 : result[1];
+            elementList.push({rating:result, element:e, parent:$(e).parent()});
+            $(e).remove();
+        });
+        elementList.sort(function(a,b){
+            return b.rating - a.rating;
+        });
+        for (i = 0; i < elementList.length; i++){
+            e = elementList[i];
+            e.parent.append(e.element);
+        }
+    },
+
+
+    addSortOption: function(i, el) {
+
+        if(window.location.href.indexOf('?so=hygine') !== -1) {
+
+            $('#sort .options ul li.selected').removeClass('selected');
+            $('#sort .options ul').append('<li class="selected"><span class="item">Hygine Rating</a></li>');           
+        }else{
+
+            $('#sort .options ul').append('<li><a class="item" href="'+window.location.pathname+'?so=hygine">Hygine Rating</a></li>')
+        }
+    },
+
     initialize: function() {
         var css = '';
         css += '.hygineRatingLoading { background-image: url('+ajaxLoader+'); backgound-repeat: no-repeat !important }'
@@ -250,8 +287,10 @@ var JustEat = {
 
         $('head').append('<style>' + css + '</style>');
 
-        $('.restaurantInner').each(this.processSearchResult);
+        this.addSortOption();
+        async.eachLimit($('.restaurantInner').get(), 5,  this.processSearchResult, this.sort);
         $('.restaurant-info-detail').each(this.processMenuPage);
+
     }
 };
 
@@ -331,17 +370,15 @@ var HungryHouse = {
 
 
 try {
-
-    if(window.location.host === 'www.just-eat.co.uk')  {
-        JustEat.initialize();
+    switch (window.location.host){
+        case 'www.just-eat.co.uk':
+            JustEat.initialize();
+            JustEat.sort();
+            break;
+        case 'hungryhouse.co.uk':
+            HungryHouse.initialize();
+            break;
     }
-
-
-    if(window.location.host === 'hungryhouse.co.uk')  {
-        HungryHouse.initialize();
-    }
-
-
 }catch(e) {
     console.error(e.message, e.stack);
 }
