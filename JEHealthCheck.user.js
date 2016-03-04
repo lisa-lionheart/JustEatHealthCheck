@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Just Eat hygiene Check
 // @namespace    https://github.com/lisa-lionheart/JustEatHealthCheck
-// @version      1.5
+// @version      1.6
 // @description  Check the ratings.food.gov for restaurants on just eat and hungry house
 // @author       Lisa Croxford
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js
