@@ -224,7 +224,7 @@ var JustEat = {
 
         var address = normalizeAddress($(el).find('p.address').text());
         var name = $(el).find('h2.name').text().trim();
-        var id = $(el).parent().attr('data-restaurant-id');
+         var id = $($(el).parents('.restaurant')[0]).attr('data-restaurant-id');
 
         console.log(name,address);
 
